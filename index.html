@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quran GitHub Repositories Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --border-color: #30363d;
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-purple: #a371f7;
+            --accent-orange: #d29922;
+            --accent-pink: #db61a2;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-glow: 0 0 40px rgba(88, 166, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, rgba(88, 166, 255, 0.1) 0%, rgba(163, 113, 247, 0.1) 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 3rem 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(88, 166, 255, 0.05) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            50% {
+                transform: translate(20px, 20px) rotate(180deg);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            padding: 1.5rem 2rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            transition: all 0.2s;
+        }
+
+        .tab:hover {
+            color: var(--text-primary);
+        }
+
+        .tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+        }
+
+        /* Search & Filters */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+        }
+
+        .search-box::before {
+            content: '🔍';
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9rem;
+        }
+
+        .filter-select {
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            cursor: pointer;
+            min-width: 150px;
+        }
+
+        /* Tab Panels */
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        /* Repository Grid */
+        .repo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .repo-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .repo-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .repo-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-glow);
+            transform: translateY(-2px);
+        }
+
+        .repo-card:hover::before {
+            opacity: 1;
+        }
+
+        .repo-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .repo-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .repo-title {
+            flex: 1;
+        }
+
+        .repo-title a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.05rem;
+            display: block;
+        }
+
+        .repo-title a:hover {
+            text-decoration: underline;
+        }
+
+        .repo-owner {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .repo-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.8rem;
+        }
+
+        .repo-topics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .topic-tag {
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-blue);
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .repo-stats {
+            display: flex;
+            gap: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .repo-stat {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+
+        .repo-stat.stars {
+            color: var(--accent-orange);
+        }
+
+        .repo-stat.forks {
+            color: var(--accent-purple);
+        }
+
+        .language-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            margin-left: auto;
+        }
+
+        .language-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        /* Contributors Section */
+        .contributors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .contributor-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .contributor-card:hover {
+            border-color: var(--accent-purple);
+            box-shadow: 0 0 30px rgba(163, 113, 247, 0.1);
+        }
+
+        .contributor-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border-color);
+        }
+
+        .contributor-info {
+            flex: 1;
+        }
+
+        .contributor-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .contributor-name:hover {
+            color: var(--accent-purple);
+        }
+
+        .contributor-stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .contributor-stats strong {
+            color: var(--accent-green);
+        }
+
+        /* Languages Chart */
+        .charts-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .language-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .language-name {
+            width: 100px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .language-progress {
+            flex: 1;
+            height: 8px;
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .language-progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .language-count {
+            width: 50px;
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            border-color: var(--accent-blue);
+            background: var(--bg-tertiary);
+        }
+
+        .page-btn.active {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Loading State */
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--border-color);
+            border-top-color: var(--accent-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Post Filter Panel */
+        .filter-panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .filter-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+
+        .filter-panel-header h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        .filter-toggle {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .filter-toggle:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .filter-panel-body {
+            display: none;
+        }
+
+        .filter-panel-body.expanded {
+            display: block;
+        }
+
+        .filter-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .filter-stat {
+            color: var(--text-secondary);
+        }
+
+        .filter-stat strong {
+            color: var(--accent-green);
+        }
+
+        .filter-stat.excluded strong {
+            color: var(--accent-pink);
+        }
+
+        .exclusion-input-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .exclusion-input {
+            flex: 1;
+            padding: 0.6rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .exclusion-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+
+        .exclusion-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .add-exclusion-btn {
+            padding: 0.6rem 1rem;
+            background: var(--accent-pink);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-exclusion-btn:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+        }
+
+        .exclusion-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .exclusion-tag {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(219, 97, 162, 0.15);
+            color: var(--accent-pink);
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+        }
+
+        .exclusion-tag .remove-tag {
+            cursor: pointer;
+            opacity: 0.7;
+            font-size: 1rem;
+            line-height: 1;
+        }
+
+        .exclusion-tag .remove-tag:hover {
+            opacity: 1;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .filter-action-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-action-btn:hover {
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .filter-action-btn.primary {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            color: white;
+        }
+
+        .preset-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            padding: 0.35rem 0.75rem;
+            background: rgba(88, 166, 255, 0.1);
+            border: 1px solid rgba(88, 166, 255, 0.3);
+            border-radius: 6px;
+            color: var(--accent-blue);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            background: rgba(88, 166, 255, 0.2);
+            border-color: var(--accent-blue);
+        }
+
+        .filter-mode-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .mode-btn {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--accent-purple);
+            border-color: var(--accent-purple);
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-bar {
+                gap: 1.5rem;
+            }
+
+            .repo-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .exclusion-input-row {
+                flex-direction: column;
+            }
+
+            .filter-stats {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="hero">
+        <div class="hero-content">
+            <h1>🕌 Quran GitHub Explorer</h1>
+            <p>Discover and explore open-source Quran-related projects from the GitHub community</p>
+        </div>
+    </header>
+
+    <div class="stats-bar" id="statsBar">
+        <div class="stat-item">
+            <div class="stat-value" id="totalRepos">-</div>
+            <div class="stat-label">Repositories</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalStars">-</div>
+            <div class="stat-label">Total Stars</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalForks">-</div>
+            <div class="stat-label">Total Forks</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="totalContributors">-</div>
+            <div class="stat-label">Contributors</div>
+        </div>
+    </div>
+
+    <main class="container">
+        <!-- Post-Filter Panel -->
+        <div class="filter-panel" id="filterPanel">
+            <div class="filter-panel-header" onclick="toggleFilterPanel()">
+                <h3>🔧 Post-Filter (Exclude Irrelevant Repos)</h3>
+                <button class="filter-toggle" id="filterToggleBtn">▼ Expand</button>
+            </div>
+            <div class="filter-panel-body" id="filterPanelBody">
+                <div class="filter-stats" id="filterStats">
+                    <span class="filter-stat">Total: <strong id="statTotal">-</strong></span>
+                    <span class="filter-stat">Included: <strong id="statIncluded">-</strong></span>
+                    <span class="filter-stat excluded">Excluded: <strong id="statExcluded">-</strong></span>
+                </div>
+
+                <div class="filter-mode-toggle">
+                    <button class="mode-btn active" data-mode="exclude" onclick="setFilterMode('exclude')">Exclude
+                        matching</button>
+                    <button class="mode-btn" data-mode="include" onclick="setFilterMode('include')">Include only
+                        matching</button>
+                </div>
+
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Add patterns to
+                    filter repos by name or description (case-insensitive):</p>
+
+                <div class="exclusion-input-row">
+                    <input type="text" class="exclusion-input" id="exclusionInput"
+                        placeholder="e.g., 'api list' or 'awesome' or 'drawer'"
+                        onkeydown="if(event.key==='Enter')addExclusion()">
+                    <button class="add-exclusion-btn" onclick="addExclusion()">+ Add Pattern</button>
+                </div>
+
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Quick presets:</p>
+                <div class="preset-filters">
+                    <button class="preset-btn" onclick="addPreset('api')">api</button>
+                    <button class="preset-btn" onclick="addPreset('awesome')">awesome</button>
+                    <button class="preset-btn" onclick="addPreset('list')">list</button>
+                    <button class="preset-btn" onclick="addPreset('collection')">collection</button>
+                    <button class="preset-btn" onclick="addPreset('drawer')">drawer</button>
+                    <button class="preset-btn" onclick="addPreset('material')">material</button>
+                    <button class="preset-btn" onclick="addPreset('template')">template</button>
+                </div>
+
+                <div class="exclusion-tags" id="exclusionTags"></div>
+
+                <div class="filter-actions">
+                    <button class="filter-action-btn" onclick="clearAllExclusions()">Clear All</button>
+                    <button class="filter-action-btn" onclick="exportFilteredData()">📥 Export Filtered JSON</button>
+                    <button class="filter-action-btn primary" onclick="saveFiltersToStorage()">💾 Save Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <nav class="tabs">
+            <button class="tab active" data-tab="repositories">📦 Repositories</button>
+            <button class="tab" data-tab="contributors">👥 Top Contributors</button>
+            <button class="tab" data-tab="analytics">📊 Analytics</button>
+        </nav>
+
+        <!-- Repositories Tab -->
+        <div id="repositories" class="tab-panel active">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Search repositories...">
+                </div>
+                <select class="filter-select" id="languageFilter">
+                    <option value="">All Languages</option>
+                </select>
+                <select class="filter-select" id="sortFilter">
+                    <option value="stars">⭐ Most Stars</option>
+                    <option value="forks">🍴 Most Forks</option>
+                    <option value="updated">🕐 Recently Updated</option>
+                    <option value="name">🔤 Name A-Z</option>
+                </select>
+            </div>
+            <div id="repoGrid" class="repo-grid">
+                <div class="loading">
+                    <div class="loading-spinner"></div>
+                    <p>Loading repositories...</p>
+                </div>
+            </div>
+            <div id="pagination" class="pagination"></div>
+        </div>
+
+        <!-- Contributors Tab -->
+        <div id="contributors" class="tab-panel">
+            <div class="controls">
+                <div class="search-box">
+                    <input type="text" id="contributorSearch" placeholder="Search contributors...">
+                </div>
+            </div>
+            <div id="contributorsGrid" class="contributors-grid"></div>
+            <div id="contributorPagination" class="pagination"></div>
+        </div>
+
+        <!-- Analytics Tab -->
+        <div id="analytics" class="tab-panel">
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>🔤 Top Languages</h3>
+                    <div id="languagesChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>📜 Top Licenses</h3>
+                    <div id="licensesChart"></div>
+                </div>
+            </div>
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>🏷️ Popular Topics</h3>
+                    <div id="topicsChart"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // State
+        let allRepositories = [];  // Original unfiltered data
+        let repositories = [];     // After post-filter is applied
+        let allContributorsData = {}; // Original contributors data
+        let contributors = [];
+        let currentPage = 1;
+        let contributorPage = 1;
+        const perPage = 12;
+
+        // Post-filter state
+        let exclusionPatterns = [];
+        let filterMode = 'exclude'; // 'exclude' or 'include'
+
+        // Language colors
+        const languageColors = {
+            'JavaScript': '#f1e05a',
+            'TypeScript': '#2b7489',
+            'Python': '#3572A5',
+            'Java': '#b07219',
+            'Kotlin': '#A97BFF',
+            'Swift': '#ffac45',
+            'Dart': '#00B4AB',
+            'Go': '#00ADD8',
+            'Rust': '#dea584',
+            'C++': '#f34b7d',
+            'C#': '#178600',
+            'PHP': '#4F5D95',
+            'Ruby': '#701516',
+            'HTML': '#e34c26',
+            'CSS': '#563d7c',
+            'Vue': '#4fc08d',
+            'Shell': '#89e051',
+            'default': '#8b949e'
+        };
+
+        // Toggle filter panel
+        function toggleFilterPanel() {
+            const body = document.getElementById('filterPanelBody');
+            const btn = document.getElementById('filterToggleBtn');
+            body.classList.toggle('expanded');
+            btn.textContent = body.classList.contains('expanded') ? '▲ Collapse' : '▼ Expand';
+        }
+
+        // Set filter mode
+        function setFilterMode(mode) {
+            filterMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            applyPostFilter();
+        }
+
+        // Add exclusion pattern
+        function addExclusion() {
+            const input = document.getElementById('exclusionInput');
+            const pattern = input.value.trim().toLowerCase();
+            if (pattern && !exclusionPatterns.includes(pattern)) {
+                exclusionPatterns.push(pattern);
+                input.value = '';
+                renderExclusionTags();
+                applyPostFilter();
+            }
+        }
+
+        // Add preset
+        function addPreset(pattern) {
+            if (!exclusionPatterns.includes(pattern)) {
+                exclusionPatterns.push(pattern);
+                renderExclusionTags();
+                applyPostFilter();
+            }
+        }
+
+        // Remove exclusion pattern
+        function removeExclusion(pattern) {
+            exclusionPatterns = exclusionPatterns.filter(p => p !== pattern);
+            renderExclusionTags();
+            applyPostFilter();
+        }
+
+        // Clear all exclusions
+        function clearAllExclusions() {
+            exclusionPatterns = [];
+            renderExclusionTags();
+            applyPostFilter();
+        }
+
+        // Render exclusion tags
+        function renderExclusionTags() {
+            const container = document.getElementById('exclusionTags');
+            container.innerHTML = exclusionPatterns.map(p => `
+                <span class="exclusion-tag">
+                    ${p}
+                    <span class="remove-tag" onclick="removeExclusion('${p}')">×</span>
+                </span>
+            `).join('');
+        }
+
+        // Check if repo matches any pattern
+        function repoMatchesPatterns(repo) {
+            if (exclusionPatterns.length === 0) return false;
+            const searchText = [
+                repo.name,
+                repo.description || '',
+                repo.full_name,
+                ...(repo.topics || [])
+            ].join(' ').toLowerCase();
+            return exclusionPatterns.some(pattern => searchText.includes(pattern));
+        }
+
+        // Apply post-filter
+        function applyPostFilter() {
+            if (exclusionPatterns.length === 0) {
+                repositories = [...allRepositories];
+            } else if (filterMode === 'exclude') {
+                repositories = allRepositories.filter(repo => !repoMatchesPatterns(repo));
+            } else {
+                repositories = allRepositories.filter(repo => repoMatchesPatterns(repo));
+            }
+
+            // Recalculate contributors based on filtered repos
+            const filteredRepoNames = new Set(repositories.map(r => r.full_name));
+            const contributorMap = {};
+            Object.entries(allContributorsData).forEach(([repo, contribs]) => {
+                if (filteredRepoNames.has(repo)) {
+                    contribs.forEach(c => {
+                        if (!contributorMap[c.login]) {
+                            contributorMap[c.login] = {
+                                ...c,
+                                totalContributions: 0,
+                                reposContributed: 0
+                            };
+                        }
+                        contributorMap[c.login].totalContributions += c.contributions;
+                        contributorMap[c.login].reposContributed++;
+                    });
+                }
+            });
+            contributors = Object.values(contributorMap)
+                .sort((a, b) => b.totalContributions - a.totalContributions);
+
+            // Update filter stats
+            const excluded = allRepositories.length - repositories.length;
+            document.getElementById('statTotal').textContent = allRepositories.length;
+            document.getElementById('statIncluded').textContent = repositories.length;
+            document.getElementById('statExcluded').textContent = excluded;
+
+            // Re-render everything
+            currentPage = 1;
+            contributorPage = 1;
+            updateStats();
+            renderRepositories();
+            renderContributors();
+            renderAnalytics();
+        }
+
+        // Save filters to localStorage
+        function saveFiltersToStorage() {
+            localStorage.setItem('quranExplorerFilters', JSON.stringify({
+                patterns: exclusionPatterns,
+                mode: filterMode
+            }));
+            alert('Filters saved! They will be restored on next visit.');
+        }
+
+        // Load filters from localStorage
+        function loadFiltersFromStorage() {
+            try {
+                const saved = localStorage.getItem('quranExplorerFilters');
+                if (saved) {
+                    const { patterns, mode } = JSON.parse(saved);
+                    exclusionPatterns = patterns || [];
+                    filterMode = mode || 'exclude';
+                    document.querySelectorAll('.mode-btn').forEach(btn => {
+                        btn.classList.toggle('active', btn.dataset.mode === filterMode);
+                    });
+                    renderExclusionTags();
+                }
+            } catch (e) {
+                console.warn('Could not load saved filters:', e);
+            }
+        }
+
+        // Export filtered data
+        function exportFilteredData() {
+            const data = {
+                repositories: repositories,
+                stats: {
+                    total: repositories.length,
+                    stars: repositories.reduce((sum, r) => sum + r.stars, 0),
+                    forks: repositories.reduce((sum, r) => sum + r.forks, 0),
+                    contributors: contributors.length
+                },
+                filters: {
+                    mode: filterMode,
+                    patterns: exclusionPatterns
+                },
+                exportedAt: new Date().toISOString()
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'filtered_repositories.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load data
+        async function loadData() {
+            try {
+                const [repoResponse, contribResponse] = await Promise.all([
+                    fetch('repositories.json'),
+                    fetch('contributors.json')
+                ]);
+
+                allRepositories = await repoResponse.json();
+                allContributorsData = await contribResponse.json();
+
+                // Load saved filters first
+                loadFiltersFromStorage();
+
+                // Apply post-filter (this sets repositories and contributors)
+                applyPostFilter();
+
+                populateFilters();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('repoGrid').innerHTML = `
+                    <div class="loading">
+                        <p>❌ Error loading data. Please make sure the JSON files are available.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update stats (now uses filtered data)
+        function updateStats() {
+            document.getElementById('totalRepos').textContent = formatNumber(repositories.length);
+            document.getElementById('totalStars').textContent = formatNumber(
+                repositories.reduce((sum, r) => sum + r.stars, 0)
+            );
+            document.getElementById('totalForks').textContent = formatNumber(
+                repositories.reduce((sum, r) => sum + r.forks, 0)
+            );
+            document.getElementById('totalContributors').textContent = formatNumber(contributors.length);
+        }
+
+        // Format numbers
+        function formatNumber(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toString();
+        }
+
+        // Populate filters (use allRepositories for full language list)
+        function populateFilters() {
+            const languages = [...new Set(allRepositories.map(r => r.language).filter(Boolean))];
+            const select = document.getElementById('languageFilter');
+            select.innerHTML = '<option value="">All Languages</option>';
+            languages.sort().forEach(lang => {
+                const option = document.createElement('option');
+                option.value = lang;
+                option.textContent = lang;
+                select.appendChild(option);
+            });
+        }
+
+        // Get filtered and sorted repos
+        function getFilteredRepos() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const language = document.getElementById('languageFilter').value;
+            const sort = document.getElementById('sortFilter').value;
+
+            let filtered = repositories.filter(repo => {
+                const matchesSearch = !search ||
+                    repo.name.toLowerCase().includes(search) ||
+                    (repo.description && repo.description.toLowerCase().includes(search)) ||
+                    repo.full_name.toLowerCase().includes(search);
+                const matchesLanguage = !language || repo.language === language;
+                return matchesSearch && matchesLanguage;
+            });
+
+            // Sort
+            filtered.sort((a, b) => {
+                switch (sort) {
+                    case 'stars': return b.stars - a.stars;
+                    case 'forks': return b.forks - a.forks;
+                    case 'updated': return new Date(b.updated_at) - new Date(a.updated_at);
+                    case 'name': return a.name.localeCompare(b.name);
+                    default: return 0;
+                }
+            });
+
+            return filtered;
+        }
+
+        // Render repositories
+        function renderRepositories() {
+            const filtered = getFilteredRepos();
+            const start = (currentPage - 1) * perPage;
+            const paged = filtered.slice(start, start + perPage);
+
+            const grid = document.getElementById('repoGrid');
+
+            if (paged.length === 0) {
+                grid.innerHTML = '<div class="loading"><p>No repositories found matching your criteria.</p></div>';
+                return;
+            }
+
+            grid.innerHTML = paged.map(repo => `
+                <div class="repo-card">
+                    <div class="repo-header">
+                        <div class="repo-icon">📁</div>
+                        <div class="repo-title">
+                            <a href="${repo.url}" target="_blank">${repo.name}</a>
+                            <div class="repo-owner">${repo.owner}</div>
+                        </div>
+                    </div>
+                    <div class="repo-description">${repo.description || 'No description available'}</div>
+                    <div class="repo-topics">
+                        ${(repo.topics || []).slice(0, 4).map(t => `<span class="topic-tag">${t}</span>`).join('')}
+                    </div>
+                    <div class="repo-stats">
+                        <span class="repo-stat stars">⭐ ${formatNumber(repo.stars)}</span>
+                        <span class="repo-stat forks">🍴 ${formatNumber(repo.forks)}</span>
+                        <span class="repo-stat">👥 ${(repo.contributors || []).length}</span>
+                        ${repo.language ? `
+                            <span class="language-badge">
+                                <span class="language-dot" style="background: ${languageColors[repo.language] || languageColors.default}"></span>
+                                ${repo.language}
+                            </span>
+                        ` : ''}
+                    </div>
+                </div>
+            `).join('');
+
+            renderPagination(filtered.length, currentPage, 'pagination', (page) => {
+                currentPage = page;
+                renderRepositories();
+            });
+        }
+
+        // Render contributors
+        function renderContributors() {
+            const search = document.getElementById('contributorSearch')?.value?.toLowerCase() || '';
+            const filtered = contributors.filter(c =>
+                !search || c.login.toLowerCase().includes(search)
+            );
+
+            const start = (contributorPage - 1) * 24;
+            const paged = filtered.slice(start, start + 24);
+
+            const grid = document.getElementById('contributorsGrid');
+            grid.innerHTML = paged.map(c => `
+                <div class="contributor-card">
+                    <img src="${c.avatar_url}" alt="${c.login}" class="contributor-avatar" loading="lazy">
+                    <div class="contributor-info">
+                        <a href="${c.profile_url}" target="_blank" class="contributor-name">${c.login}</a>
+                        <div class="contributor-stats">
+                            <strong>${formatNumber(c.totalContributions)}</strong> contributions across 
+                            <strong>${c.reposContributed}</strong> repos
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            renderPagination(filtered.length, contributorPage, 'contributorPagination', (page) => {
+                contributorPage = page;
+                renderContributors();
+            }, 24);
+        }
+
+        // Render pagination
+        function renderPagination(total, current, containerId, callback, itemsPerPage = perPage) {
+            const totalPages = Math.ceil(total / itemsPerPage);
+            const container = document.getElementById(containerId);
+
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
+            }
+
+            let buttons = [];
+            buttons.push(`<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="arguments[0].stopPropagation(); (${callback.toString()})(${current - 1})">← Prev</button>`);
+
+            const range = 2;
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= current - range && i <= current + range)) {
+                    buttons.push(`<button class="page-btn ${i === current ? 'active' : ''}" onclick="(${callback.toString()})(${i})">${i}</button>`);
+                } else if (i === current - range - 1 || i === current + range + 1) {
+                    buttons.push('<span class="page-btn" style="border:none;cursor:default">...</span>');
+                }
+            }
+
+            buttons.push(`<button class="page-btn" ${current === totalPages ? 'disabled' : ''} onclick="(${callback.toString()})(${current + 1})">Next →</button>`);
+
+            container.innerHTML = buttons.join('');
+        }
+
+        // Render analytics
+        function renderAnalytics() {
+            // Languages
+            const languages = {};
+            repositories.forEach(r => {
+                if (r.language) {
+                    languages[r.language] = (languages[r.language] || 0) + 1;
+                }
+            });
+
+            const sortedLangs = Object.entries(languages)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+
+            const maxLangCount = sortedLangs[0]?.[1] || 1;
+
+            document.getElementById('languagesChart').innerHTML = sortedLangs.map(([lang, count]) => `
+                <div class="language-bar">
+                    <span class="language-name">${lang}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxLangCount) * 100}%; background: ${languageColors[lang] || languageColors.default}"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Licenses
+            const licenses = {};
+            repositories.forEach(r => {
+                const license = r.license || 'No License';
+                licenses[license] = (licenses[license] || 0) + 1;
+            });
+
+            const sortedLicenses = Object.entries(licenses)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            const maxLicenseCount = sortedLicenses[0]?.[1] || 1;
+
+            document.getElementById('licensesChart').innerHTML = sortedLicenses.map(([license, count]) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:140px">${license.substring(0, 18)}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxLicenseCount) * 100}%; background: var(--accent-purple)"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Topics
+            const topics = {};
+            repositories.forEach(r => {
+                (r.topics || []).forEach(t => {
+                    topics[t] = (topics[t] || 0) + 1;
+                });
+            });
+
+            const sortedTopics = Object.entries(topics)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 15);
+
+            const maxTopicCount = sortedTopics[0]?.[1] || 1;
+
+            document.getElementById('topicsChart').innerHTML = sortedTopics.map(([topic, count]) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:140px">${topic}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxTopicCount) * 100}%; background: var(--accent-green)"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+        }
+
+        // Event listeners
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            currentPage = 1;
+            renderRepositories();
+        });
+
+        document.getElementById('languageFilter').addEventListener('change', () => {
+            currentPage = 1;
+            renderRepositories();
+        });
+
+        document.getElementById('sortFilter').addEventListener('change', () => {
+            currentPage = 1;
+            renderRepositories();
+        });
+
+        document.getElementById('contributorSearch')?.addEventListener('input', () => {
+            contributorPage = 1;
+            renderContributors();
+        });
+
+        // Initialize
+        loadData();
+    </script>
+</body>
+
+</html>
