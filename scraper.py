@@ -18,6 +18,7 @@ from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from collections import defaultdict
 import re
+import argparse
 
 # GitHub API configuration
 GITHUB_API_BASE = "https://api.github.com"
@@ -35,15 +36,28 @@ ENGLISH_KEYWORDS = [
     "quran-dataset",
     "tajwid",
     "tajweed-coloring",
+    "tajweed-rules",
     "learn-quran",
     "quran-learning",
     "quran-nlp",
-    "recitation",
     "tilawa",
     "tarteel",
     "qiraat",
     "quran-audio",
     "ayah-timing",
+    # Additional keywords
+    "hifz",
+    "hifaz",
+    "quran-translation",
+    "quran-tafsir",
+    "tafseer",
+    "surah",
+    "ayat",
+    "ayah",
+    "qari",
+    "quran-memorization",
+    "quran-offline",
+    "quran-reader",
 ]
 
 # Search keywords - Arabic
@@ -56,6 +70,15 @@ ARABIC_KEYWORDS = [
     "تجويد",
     "الترتيل",
     "ترتيل",
+    # Additional Arabic keywords
+    "حفظ",
+    "أحكام التجويد",
+    "ترجمة القرآن",
+    "تفسير",
+    "سورة",
+    "آية",
+    "قارئ",
+    "حفظ القرآن",
 ]
 
 ALL_KEYWORDS = ENGLISH_KEYWORDS + ARABIC_KEYWORDS
@@ -70,12 +93,56 @@ ALL_KEYWORDS = ENGLISH_KEYWORDS + ARABIC_KEYWORDS
 # Use lowercase for case-insensitive matching
 
 EXCLUDE_TERMS = [
+    # Original exclusions
     "course",
     "list of",
     "template",
     "collection of",
     "awesome",
     "interview",
+    # Lists/Collections
+    "awesome-",
+    "curated-list",
+    "curated list",
+    "resources",
+    "links",
+    "cheatsheet",
+    "learning-path",
+    "roadmap",
+    # UI Components
+    "drawer",
+    "navbar",
+    "sidebar",
+    "component",
+    "widget",
+    "ui-kit",
+    "ui-library",
+    "react-component",
+    "vue-component",
+    # Templates
+    "boilerplate",
+    "starter",
+    "scaffold",
+    "skeleton",
+    "bootstrap",
+    # Courses/Learning materials
+    "tutorial",
+    "bootcamp",
+    "workshop",
+    "learning-",
+    "study-notes",
+    "notes",
+    # Generic Tools
+    "dotfiles",
+    "config",
+    "setup",
+    "installer",
+    "cli-tool",
+    # Non-Project Types
+    "fork-of",
+    "backup",
+    "mirror",
+    "deprecated",
 ]
 
 # Exclude repositories containing these terms in their FULL NAME (owner/repo)
@@ -243,16 +310,32 @@ def filter_repositories(repos: list[dict], verbose: bool = True) -> list[dict]:
     return filtered
 
 
-def search_repositories_with_star_range(keyword: str, star_range: str) -> list[dict]:
-    """Search GitHub repositories for a specific keyword within a star range."""
+def search_repositories_with_star_range(keyword: str, star_range: str, date_filters: dict = None) -> list[dict]:
+    """Search GitHub repositories for a specific keyword within a star range.
+    
+    Args:
+        keyword: Search keyword
+        star_range: Star count range (e.g., "0..5", ">2000")
+        date_filters: Optional dict with keys 'created_since', 'created_until', 'updated_since'
+    """
     repositories = []
     page = 1
     per_page = 100  # Maximum allowed by GitHub API
     
     while True:
-        # Search in repository name, description, and readme with star filter
-        url = f"{GITHUB_API_BASE}/search/repositories"
+        # Build query with star filter and optional date filters
         query = f"{keyword} in:name,description,readme stars:{star_range}"
+        
+        # Add date filters if provided
+        if date_filters:
+            if date_filters.get('created_since'):
+                query += f" created:>={date_filters['created_since']}"
+            if date_filters.get('created_until'):
+                query += f" created:<={date_filters['created_until']}"
+            if date_filters.get('updated_since'):
+                query += f" pushed:>={date_filters['updated_since']}"
+        
+        url = f"{GITHUB_API_BASE}/search/repositories"
         params = {
             "q": query,
             "sort": "stars",
@@ -295,16 +378,24 @@ def search_repositories_with_star_range(keyword: str, star_range: str) -> list[d
     return repositories
 
 
-def search_repositories(keyword: str) -> list[dict]:
-    """Search GitHub repositories for a specific keyword using star range splitting."""
+def search_repositories(keyword: str, date_filters: dict = None) -> list[dict]:
+    """Search GitHub repositories for a specific keyword using star range splitting.
+    
+    Args:
+        keyword: Search keyword
+        date_filters: Optional dict for date filtering
+    """
     # Star ranges to search - this allows us to get up to 1000 results per range
     STAR_RANGES = [
-        "0..5",       # Very small projects
-        "6..20",      # Small projects
-        "21..100",    # Medium projects
+        "0",          # 0 stars
+        "1",          # 1 star
+        "2",          # 2 stars exactly
+        "3..5",       # Very small projects
+        "6..10",      # Small projects
+        "11..50",     # Growing projects
+        "51..100",    # Medium projects
         "101..500",   # Popular projects
-        "501..2000",  # Very popular projects
-        ">2000",      # Highly starred projects
+        ">500",       # Highly starred projects
     ]
     
     all_repos = []
@@ -315,7 +406,7 @@ def search_repositories(keyword: str) -> list[dict]:
     for star_range in STAR_RANGES:
         print(f"   ⭐ Stars {star_range}...", end=" ", flush=True)
         
-        repos = search_repositories_with_star_range(keyword, star_range)
+        repos = search_repositories_with_star_range(keyword, star_range, date_filters)
         
         # Deduplicate within this keyword search
         new_count = 0
@@ -362,6 +453,97 @@ def get_contributors(owner: str, repo: str, max_contributors: int = 30) -> list[
             for c in contributors
         ]
     return []
+
+
+# =============================================================================
+# BATCH CONTRIBUTOR FETCHING
+# =============================================================================
+# Number of concurrent workers for contributor fetching
+CONTRIBUTOR_FETCH_WORKERS = 10
+
+
+def fetch_single_contributor(repo_tuple: tuple) -> tuple:
+    """
+    Fetch contributors for a single repository.
+    
+    Args:
+        repo_tuple: (full_name, owner, repo_name)
+    
+    Returns:
+        Tuple of (full_name, contributors_list)
+    """
+    full_name, owner, repo_name = repo_tuple
+    try:
+        contributors = get_contributors(owner, repo_name)
+        return (full_name, contributors)
+    except Exception:
+        return (full_name, [])
+
+
+def batch_fetch_contributors(
+    repos: list[dict], 
+    max_workers: int = None
+) -> dict:
+    """
+    Fetch contributors for multiple repositories concurrently.
+    
+    Args:
+        repos: List of repository dictionaries (must have 'full_name' key)
+        max_workers: Number of concurrent workers (default: CONTRIBUTOR_FETCH_WORKERS)
+    
+    Returns:
+        Dict mapping full_name -> contributors list
+    """
+    if max_workers is None:
+        max_workers = CONTRIBUTOR_FETCH_WORKERS
+    
+    total = len(repos)
+    all_contributors = {}
+    completed = 0
+    
+    print(f"\n👥 Fetching contributors for {total} repositories ({max_workers} concurrent workers)...")
+    
+    # Prepare repo tuples for the executor
+    repo_tuples = []
+    for repo in repos:
+        full_name = repo.get("full_name", "")
+        if "/" in full_name:
+            owner, repo_name = full_name.split("/", 1)
+            repo_tuples.append((full_name, owner, repo_name))
+    
+    # Process in batches to avoid rate limiting
+    batch_size = max_workers * 10
+    
+    for batch_start in range(0, len(repo_tuples), batch_size):
+        batch_end = min(batch_start + batch_size, len(repo_tuples))
+        batch = repo_tuples[batch_start:batch_end]
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_repo = {
+                executor.submit(fetch_single_contributor, repo_tuple): repo_tuple
+                for repo_tuple in batch
+            }
+            
+            for future in as_completed(future_to_repo):
+                try:
+                    full_name, contributors = future.result()
+                    all_contributors[full_name] = contributors
+                except Exception:
+                    repo_tuple = future_to_repo[future]
+                    all_contributors[repo_tuple[0]] = []
+                
+                completed += 1
+                if completed % 100 == 0 or completed == total:
+                    print(f"   👤 Progress: {completed}/{total}")
+        
+        # Small delay between batches to respect rate limits
+        if batch_end < len(repo_tuples):
+            time.sleep(0.5)
+    
+    success_count = sum(1 for c in all_contributors.values() if c)
+    print(f"   ✅ Completed: {success_count}/{total} repos with contributors")
+    
+    return all_contributors
 
 
 def get_readme_content(owner: str, repo: str) -> Optional[str]:
@@ -565,7 +747,7 @@ def load_checkpoint() -> tuple[list, dict, int]:
     return [], {}, 0
 
 
-def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_readme: bool = True) -> tuple[list[dict], dict]:
+def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_readme: bool = True, skip_readme: bool = False) -> tuple[list[dict], dict]:
     """
     Process repositories to extract detailed information and contributors.
     
@@ -573,6 +755,7 @@ def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_r
         all_repos: List of repository dictionaries from search
         resume: Whether to try resuming from checkpoint
         use_batch_readme: Whether to use batch README downloading (faster)
+        skip_readme: If True, skip README downloading entirely (fastest mode)
     
     Returns:
         Tuple of (processed_repos, all_contributors)
@@ -590,7 +773,7 @@ def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_r
     total = len(all_repos)
     print(f"\n📦 Processing {total} repositories (starting from {start_idx})...")
     
-    # First pass: extract repo info and get contributors
+    # First pass: extract repo info (no API calls, fast)
     repos_to_process = []
     
     for idx, repo in enumerate(all_repos):
@@ -608,9 +791,7 @@ def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_r
         
         owner, repo_name = full_name.split("/") if "/" in full_name else ("", full_name)
         
-        print(f"  [{idx + 1}/{total}] Processing: {full_name}")
-        
-        # Extract repository info
+        # Extract repository info (no API calls here)
         repo_info = {
             "id": repo_id,
             "name": repo.get("name"),
@@ -636,20 +817,30 @@ def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_r
             "default_branch": repo.get("default_branch"),
         }
         
-        # Get contributors with retry
-        time.sleep(0.3)  # Rate limiting protection
-        contributors = get_contributors(owner, repo_name)
-        repo_info["contributors"] = contributors
-        all_contributors[full_name] = contributors
-        
         repos_to_process.append(repo_info)
-        
-        # Save checkpoint every 100 repos
-        if (idx + 1) % 100 == 0:
-            save_checkpoint(repos_to_process, all_contributors, idx + 1)
     
-    # Second pass: Download READMEs in batch (much faster)
-    if use_batch_readme and repos_to_process:
+    print(f"   📋 Extracted metadata for {len(repos_to_process)} repos")
+    
+    # Second pass: Batch fetch contributors (parallel, fast)
+    if repos_to_process:
+        contributors_map = batch_fetch_contributors(repos_to_process)
+        
+        # Attach contributors to repo info
+        for repo_info in repos_to_process:
+            full_name = repo_info.get("full_name", "")
+            contributors = contributors_map.get(full_name, [])
+            repo_info["contributors"] = contributors
+            all_contributors[full_name] = contributors
+    
+    # Second pass: Download READMEs (unless skipped)
+    if skip_readme:
+        # Skip README download entirely - mark all as not saved
+        print(f"\n⏭️ Skipping README downloads (--no-readme flag)")
+        for repo_info in repos_to_process:
+            repo_info["readme_saved"] = False
+            repo_info["readme_path"] = None
+        processed.extend(repos_to_process)
+    elif use_batch_readme and repos_to_process:
         print(f"\n📥 Starting batch README download...")
         repos_with_readme = batch_download_readmes(repos_to_process)
         processed.extend(repos_with_readme)
@@ -794,11 +985,90 @@ def generate_markdown_report(repositories: list[dict]) -> None:
     print(f"✅ Generated markdown report: {report_file}")
 
 
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="🕌 GitHub Quran Repository Scraper - Find Quran-related open source projects",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  %(prog)s                          # Full scrape with README downloads
+  %(prog)s --no-readme              # Fast mode: skip README downloads
+  %(prog)s --since 2024-01-01       # Only repos created after 2024-01-01
+  %(prog)s --updated-since 2024-06-01 --no-readme  # Recently updated, fast mode
+        """
+    )
+    
+    # README mode
+    readme_group = parser.add_mutually_exclusive_group()
+    readme_group.add_argument(
+        '--no-readme', '--skip-readme',
+        action='store_true',
+        dest='skip_readme',
+        help='Skip README downloads (faster, metadata only)'
+    )
+    readme_group.add_argument(
+        '--with-readme',
+        action='store_true',
+        default=True,
+        help='Download READMEs (default behavior)'
+    )
+    
+    # Date filters
+    parser.add_argument(
+        '--since',
+        type=str,
+        metavar='YYYY-MM-DD',
+        help='Only include repos created on or after this date'
+    )
+    parser.add_argument(
+        '--until',
+        type=str,
+        metavar='YYYY-MM-DD',
+        help='Only include repos created on or before this date'
+    )
+    parser.add_argument(
+        '--updated-since',
+        type=str,
+        metavar='YYYY-MM-DD',
+        help='Only include repos updated (pushed) on or after this date'
+    )
+    
+    # Other options
+    parser.add_argument(
+        '--fresh',
+        action='store_true',
+        help='Ignore cache and do a fresh search'
+    )
+    
+    return parser.parse_args()
+
+
 def main():
     """Main entry point."""
+    args = parse_args()
+    
     print("=" * 60)
     print("🕌 GitHub Quran Repository Scraper")
     print("=" * 60)
+    
+    # Show mode
+    if args.skip_readme:
+        print("📋 Mode: Metadata only (README downloads skipped)")
+    else:
+        print("📋 Mode: Full scrape (with README downloads)")
+    
+    # Show date filters
+    date_filters = {}
+    if args.since:
+        date_filters['created_since'] = args.since
+        print(f"📅 Created since: {args.since}")
+    if args.until:
+        date_filters['created_until'] = args.until
+        print(f"📅 Created until: {args.until}")
+    if args.updated_since:
+        date_filters['updated_since'] = args.updated_since
+        print(f"📅 Updated since: {args.updated_since}")
     
     if not GITHUB_TOKEN:
         print("\n⚠️  Warning: GITHUB_TOKEN not set. Rate limits will be more restrictive.")
@@ -808,7 +1078,7 @@ def main():
     if EXCLUDE_TERMS or EXCLUDE_OWNERS or EXCLUDE_REPOS or MIN_STARS > 0:
         print("\n🔧 Exclusion Configuration:")
         if EXCLUDE_TERMS:
-            print(f"   - Excluded terms: {', '.join(EXCLUDE_TERMS)}")
+            print(f"   - Excluded terms: {len(EXCLUDE_TERMS)} patterns")
         if EXCLUDE_OWNERS:
             print(f"   - Excluded owners: {', '.join(EXCLUDE_OWNERS)}")
         if EXCLUDE_REPOS:
@@ -818,11 +1088,12 @@ def main():
     
     # Create output directories
     OUTPUT_DIR.mkdir(exist_ok=True)
-    README_DIR.mkdir(exist_ok=True)
+    if not args.skip_readme:
+        README_DIR.mkdir(exist_ok=True)
     
-    # Check for cached search results
+    # Check for cached search results (unless --fresh)
     all_repos = []
-    if SEARCH_CACHE_FILE.exists():
+    if not args.fresh and SEARCH_CACHE_FILE.exists():
         try:
             with open(SEARCH_CACHE_FILE, "r", encoding="utf-8") as f:
                 all_repos = json.load(f)
@@ -831,17 +1102,43 @@ def main():
             print(f"⚠️ Could not load search cache: {e}")
             all_repos = []
     
-    # If no cache, do the search
+    # If no cache, do the search with parallel keyword processing
     if not all_repos:
-        seen_ids = set()
+        print(f"\n🔎 Searching {len(ALL_KEYWORDS)} keywords in parallel...")
         
-        for keyword in ALL_KEYWORDS:
-            repos = search_repositories(keyword)
-            for repo in repos:
-                if repo["id"] not in seen_ids:
-                    seen_ids.add(repo["id"])
-                    all_repos.append(repo)
-            time.sleep(2)  # Delay between keyword searches
+        # Parallel keyword search with limited workers to respect rate limits
+        KEYWORD_SEARCH_WORKERS = 5
+        keyword_results = []
+        
+        def search_keyword_wrapper(keyword):
+            """Wrapper for parallel keyword search."""
+            return search_repositories(keyword, date_filters if date_filters else None)
+        
+        with ThreadPoolExecutor(max_workers=KEYWORD_SEARCH_WORKERS) as executor:
+            future_to_keyword = {
+                executor.submit(search_keyword_wrapper, kw): kw 
+                for kw in ALL_KEYWORDS
+            }
+            
+            completed = 0
+            for future in as_completed(future_to_keyword):
+                keyword = future_to_keyword[future]
+                try:
+                    repos = future.result()
+                    keyword_results.extend(repos)
+                except Exception as e:
+                    print(f"   ⚠️ Error searching '{keyword}': {e}")
+                
+                completed += 1
+                if completed % 10 == 0:
+                    print(f"   🔄 Keywords completed: {completed}/{len(ALL_KEYWORDS)}")
+        
+        # Deduplicate across all keywords
+        seen_ids = set()
+        for repo in keyword_results:
+            if repo["id"] not in seen_ids:
+                seen_ids.add(repo["id"])
+                all_repos.append(repo)
         
         # Save search cache
         with open(SEARCH_CACHE_FILE, "w", encoding="utf-8") as f:
@@ -862,8 +1159,11 @@ def main():
         print("❌ All repositories were filtered out. Check your exclusion settings.")
         return
     
-    # Process repositories (get details, contributors, READMEs)
-    processed_repos, contributors = process_repositories(filtered_repos)
+    # Process repositories (get details, contributors, optionally READMEs)
+    processed_repos, contributors = process_repositories(
+        filtered_repos, 
+        skip_readme=args.skip_readme
+    )
     
     # Save results
     save_results(processed_repos, contributors)
@@ -871,18 +1171,18 @@ def main():
     # Generate markdown report
     generate_markdown_report(processed_repos)
     
-    # Clean up cache after successful completion
-    if SEARCH_CACHE_FILE.exists():
-        SEARCH_CACHE_FILE.unlink()
-        print("🗑️ Search cache removed (completed)")
+    # Keep search cache for faster re-runs (use --fresh to force new search)
+    print(f"� Search cache preserved at: {SEARCH_CACHE_FILE}")
     
     print("\n" + "=" * 60)
     print("✨ Scraping complete!")
     print(f"   - Repositories found: {len(processed_repos)}")
-    print(f"   - READMEs downloaded: {sum(1 for r in processed_repos if r['readme_saved'])}")
+    if not args.skip_readme:
+        print(f"   - READMEs downloaded: {sum(1 for r in processed_repos if r.get('readme_saved'))}")
     print(f"   - Output directory: {OUTPUT_DIR.absolute()}")
     print("=" * 60)
 
 
 if __name__ == "__main__":
     main()
+

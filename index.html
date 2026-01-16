@@ -1,13 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quran GitHub Repositories Explorer</title>
+    <title>مستكشف مشاريع القرآن على GitHub</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0d1117;
@@ -34,11 +35,20 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            font-family: 'IBM Plex Sans Arabic', -apple-system, BlinkMacSystemFont, sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             min-height: 100vh;
-            line-height: 1.6;
+            line-height: 1.8;
+        }
+
+        /* Ensure all form elements inherit the Arabic font */
+        button,
+        input,
+        select,
+        textarea,
+        optgroup {
+            font-family: inherit;
         }
 
         /* Hero Section */
@@ -148,6 +158,7 @@
             background: transparent;
             border: none;
             color: var(--text-secondary);
+            font-family: inherit;
             font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
@@ -181,11 +192,12 @@
 
         .search-box input {
             width: 100%;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            padding: 0.75rem 2.5rem 0.75rem 1rem;
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-primary);
+            font-family: inherit;
             font-size: 0.95rem;
             transition: all 0.2s;
         }
@@ -199,7 +211,8 @@
         .search-box::before {
             content: '🔍';
             position: absolute;
-            left: 0.75rem;
+            right: 0.75rem;
+            left: auto;
             top: 50%;
             transform: translateY(-50%);
             font-size: 0.9rem;
@@ -211,6 +224,7 @@
             border: 1px solid var(--border-color);
             border-radius: 8px;
             color: var(--text-primary);
+            font-family: inherit;
             font-size: 0.95rem;
             cursor: pointer;
             min-width: 150px;
@@ -358,7 +372,8 @@
             display: flex;
             align-items: center;
             gap: 0.35rem;
-            margin-left: auto;
+            margin-right: auto;
+            margin-left: 0;
         }
 
         .language-dot {
@@ -786,27 +801,27 @@
 <body>
     <header class="hero">
         <div class="hero-content">
-            <h1>🕌 Quran GitHub Explorer</h1>
-            <p>Discover and explore open-source Quran-related projects from the GitHub community</p>
+            <h1>🕌 مستكشف مشاريع القرآن</h1>
+            <p>اكتشف واستعرض مشاريع القرآن الكريم مفتوحة المصدر من مجتمع GitHub</p>
         </div>
     </header>
 
     <div class="stats-bar" id="statsBar">
         <div class="stat-item">
             <div class="stat-value" id="totalRepos">-</div>
-            <div class="stat-label">Repositories</div>
+            <div class="stat-label">المستودعات</div>
         </div>
         <div class="stat-item">
             <div class="stat-value" id="totalStars">-</div>
-            <div class="stat-label">Total Stars</div>
+            <div class="stat-label">إجمالي النجوم</div>
         </div>
         <div class="stat-item">
-            <div class="stat-value" id="totalForks">-</div>
-            <div class="stat-label">Total Forks</div>
+            <div class="stat-value" id="totalIssues">-</div>
+            <div class="stat-label">Issues المفتوحة</div>
         </div>
         <div class="stat-item">
             <div class="stat-value" id="totalContributors">-</div>
-            <div class="stat-label">Contributors</div>
+            <div class="stat-label">المساهمين</div>
         </div>
     </div>
 
@@ -814,34 +829,35 @@
         <!-- Post-Filter Panel -->
         <div class="filter-panel" id="filterPanel">
             <div class="filter-panel-header" onclick="toggleFilterPanel()">
-                <h3>🔧 Post-Filter (Exclude Irrelevant Repos)</h3>
-                <button class="filter-toggle" id="filterToggleBtn">▼ Expand</button>
+                <h3>🔧 تصفية لاحقة (استبعاد المستودعات غير ذات الصلة)</h3>
+                <button class="filter-toggle" id="filterToggleBtn">▼ توسيع</button>
             </div>
             <div class="filter-panel-body" id="filterPanelBody">
                 <div class="filter-stats" id="filterStats">
-                    <span class="filter-stat">Total: <strong id="statTotal">-</strong></span>
-                    <span class="filter-stat">Included: <strong id="statIncluded">-</strong></span>
-                    <span class="filter-stat excluded">Excluded: <strong id="statExcluded">-</strong></span>
+                    <span class="filter-stat">الإجمالي: <strong id="statTotal">-</strong></span>
+                    <span class="filter-stat">مُضمّنة: <strong id="statIncluded">-</strong></span>
+                    <span class="filter-stat excluded">مستبعدة: <strong id="statExcluded">-</strong></span>
                 </div>
 
                 <div class="filter-mode-toggle">
-                    <button class="mode-btn active" data-mode="exclude" onclick="setFilterMode('exclude')">Exclude
-                        matching</button>
-                    <button class="mode-btn" data-mode="include" onclick="setFilterMode('include')">Include only
-                        matching</button>
+                    <button class="mode-btn active" data-mode="exclude" onclick="setFilterMode('exclude')">استبعاد
+                        المطابق</button>
+                    <button class="mode-btn" data-mode="include" onclick="setFilterMode('include')">تضمين المطابق
+                        فقط</button>
                 </div>
 
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Add patterns to
-                    filter repos by name or description (case-insensitive):</p>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem;">أضف أنماطاً لتصفية
+                    المستودعات حسب الاسم أو الوصف:</p>
 
                 <div class="exclusion-input-row">
                     <input type="text" class="exclusion-input" id="exclusionInput"
-                        placeholder="e.g., 'api list' or 'awesome' or 'drawer'"
+                        placeholder="مثال: 'api' أو 'awesome' أو 'drawer'"
                         onkeydown="if(event.key==='Enter')addExclusion()">
-                    <button class="add-exclusion-btn" onclick="addExclusion()">+ Add Pattern</button>
+                    <button class="add-exclusion-btn" onclick="addExclusion()">+ إضافة نمط</button>
                 </div>
 
-                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Quick presets:</p>
+                <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.5rem;">الإعدادات المسبقة
+                    السريعة:</p>
                 <div class="preset-filters">
                     <button class="preset-btn" onclick="addPreset('api')">api</button>
                     <button class="preset-btn" onclick="addPreset('awesome')">awesome</button>
@@ -855,39 +871,40 @@
                 <div class="exclusion-tags" id="exclusionTags"></div>
 
                 <div class="filter-actions">
-                    <button class="filter-action-btn" onclick="clearAllExclusions()">Clear All</button>
-                    <button class="filter-action-btn" onclick="exportFilteredData()">📥 Export Filtered JSON</button>
-                    <button class="filter-action-btn primary" onclick="saveFiltersToStorage()">💾 Save Filters</button>
+                    <button class="filter-action-btn" onclick="clearAllExclusions()">مسح الكل</button>
+                    <button class="filter-action-btn" onclick="exportFilteredData()">📥 تصدير JSON المُصفّى</button>
+                    <button class="filter-action-btn primary" onclick="saveFiltersToStorage()">💾 حفظ الفلاتر</button>
                 </div>
             </div>
         </div>
 
         <nav class="tabs">
-            <button class="tab active" data-tab="repositories">📦 Repositories</button>
-            <button class="tab" data-tab="contributors">👥 Top Contributors</button>
-            <button class="tab" data-tab="analytics">📊 Analytics</button>
+            <button class="tab active" data-tab="repositories">📦 المستودعات</button>
+            <button class="tab" data-tab="contributors">👥 أفضل المساهمين</button>
+            <button class="tab" data-tab="analytics">📊 التحليلات</button>
         </nav>
 
         <!-- Repositories Tab -->
         <div id="repositories" class="tab-panel active">
             <div class="controls">
                 <div class="search-box">
-                    <input type="text" id="searchInput" placeholder="Search repositories...">
+                    <input type="text" id="searchInput" placeholder="البحث في المستودعات...">
                 </div>
                 <select class="filter-select" id="languageFilter">
-                    <option value="">All Languages</option>
+                    <option value="">جميع اللغات</option>
                 </select>
                 <select class="filter-select" id="sortFilter">
-                    <option value="stars">⭐ Most Stars</option>
-                    <option value="forks">🍴 Most Forks</option>
-                    <option value="updated">🕐 Recently Updated</option>
-                    <option value="name">🔤 Name A-Z</option>
+                    <option value="stars">⭐ الأكثر نجوماً</option>
+                    <option value="forks">🍴 الأكثر تفريعاً</option>
+                    <option value="updated">🕐 آخر تحديث</option>
+                    <option value="created">📅 تاريخ الإنشاء</option>
+                    <option value="name">🔤 الاسم أ-ي</option>
                 </select>
             </div>
             <div id="repoGrid" class="repo-grid">
                 <div class="loading">
                     <div class="loading-spinner"></div>
-                    <p>Loading repositories...</p>
+                    <p>جاري تحميل المستودعات...</p>
                 </div>
             </div>
             <div id="pagination" class="pagination"></div>
@@ -897,7 +914,7 @@
         <div id="contributors" class="tab-panel">
             <div class="controls">
                 <div class="search-box">
-                    <input type="text" id="contributorSearch" placeholder="Search contributors...">
+                    <input type="text" id="contributorSearch" placeholder="البحث عن المساهمين...">
                 </div>
             </div>
             <div id="contributorsGrid" class="contributors-grid"></div>
@@ -908,18 +925,38 @@
         <div id="analytics" class="tab-panel">
             <div class="charts-section">
                 <div class="chart-card">
-                    <h3>🔤 Top Languages</h3>
+                    <h3>🔤 أهم اللغات</h3>
                     <div id="languagesChart"></div>
                 </div>
                 <div class="chart-card">
-                    <h3>📜 Top Licenses</h3>
+                    <h3>📜 أهم الرخص</h3>
                     <div id="licensesChart"></div>
                 </div>
             </div>
             <div class="charts-section">
                 <div class="chart-card">
-                    <h3>🏷️ Popular Topics</h3>
+                    <h3>🏷️ المواضيع الشائعة</h3>
                     <div id="topicsChart"></div>
+                </div>
+            </div>
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>⭐ توزيع النجوم</h3>
+                    <div id="starRangesChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>📋 نشاط Issues المفتوحة</h3>
+                    <div id="issueActivityChart"></div>
+                </div>
+            </div>
+            <div class="charts-section">
+                <div class="chart-card">
+                    <h3>🔄 آخر نشاط</h3>
+                    <div id="activityHeatmapChart"></div>
+                </div>
+                <div class="chart-card">
+                    <h3>📈 المشاريع عبر الزمن</h3>
+                    <div id="projectsTimelineChart"></div>
                 </div>
             </div>
         </div>
@@ -936,7 +973,20 @@
         const perPage = 12;
 
         // Post-filter state
-        let exclusionPatterns = [];
+        const DEFAULT_EXCLUSION_PATTERNS = [
+            'appz',
+            'research papers',
+            'daftar',
+            'teaching',
+            'send messages',
+            'raycast extensions',
+            'paper list',
+            'playlists',
+            'the todo list',
+            'obsidian plugins',
+            'public-apis'
+        ];
+        let exclusionPatterns = [...DEFAULT_EXCLUSION_PATTERNS];
         let filterMode = 'exclude'; // 'exclude' or 'include'
 
         // Language colors
@@ -966,7 +1016,7 @@
             const body = document.getElementById('filterPanelBody');
             const btn = document.getElementById('filterToggleBtn');
             body.classList.toggle('expanded');
-            btn.textContent = body.classList.contains('expanded') ? '▲ Collapse' : '▼ Expand';
+            btn.textContent = body.classList.contains('expanded') ? '▲ طي' : '▼ توسيع';
         }
 
         // Set filter mode
@@ -1088,7 +1138,7 @@
                 patterns: exclusionPatterns,
                 mode: filterMode
             }));
-            alert('Filters saved! They will be restored on next visit.');
+            alert('تم حفظ الفلاتر! سيتم استعادتها في الزيارة القادمة.');
         }
 
         // Load filters from localStorage
@@ -1097,15 +1147,22 @@
                 const saved = localStorage.getItem('quranExplorerFilters');
                 if (saved) {
                     const { patterns, mode } = JSON.parse(saved);
-                    exclusionPatterns = patterns || [];
+                    // Merge saved patterns with defaults (defaults are always included)
+                    const savedPatterns = patterns || [];
+                    const merged = [...new Set([...DEFAULT_EXCLUSION_PATTERNS, ...savedPatterns])];
+                    exclusionPatterns = merged;
                     filterMode = mode || 'exclude';
                     document.querySelectorAll('.mode-btn').forEach(btn => {
                         btn.classList.toggle('active', btn.dataset.mode === filterMode);
                     });
                     renderExclusionTags();
+                } else {
+                    // No saved filters - just render the default tags
+                    renderExclusionTags();
                 }
             } catch (e) {
                 console.warn('Could not load saved filters:', e);
+                renderExclusionTags();
             }
         }
 
@@ -1156,7 +1213,7 @@
                 console.error('Error loading data:', error);
                 document.getElementById('repoGrid').innerHTML = `
                     <div class="loading">
-                        <p>❌ Error loading data. Please make sure the JSON files are available.</p>
+                        <p>❌ خطأ في تحميل البيانات. يرجى التأكد من توفر ملفات JSON.</p>
                     </div>
                 `;
             }
@@ -1168,8 +1225,8 @@
             document.getElementById('totalStars').textContent = formatNumber(
                 repositories.reduce((sum, r) => sum + r.stars, 0)
             );
-            document.getElementById('totalForks').textContent = formatNumber(
-                repositories.reduce((sum, r) => sum + r.forks, 0)
+            document.getElementById('totalIssues').textContent = formatNumber(
+                repositories.reduce((sum, r) => sum + (r.open_issues || 0), 0)
             );
             document.getElementById('totalContributors').textContent = formatNumber(contributors.length);
         }
@@ -1181,11 +1238,18 @@
             return num.toString();
         }
 
+        // Format date for display
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+
         // Populate filters (use allRepositories for full language list)
         function populateFilters() {
             const languages = [...new Set(allRepositories.map(r => r.language).filter(Boolean))];
             const select = document.getElementById('languageFilter');
-            select.innerHTML = '<option value="">All Languages</option>';
+            select.innerHTML = '<option value="">جميع اللغات</option>';
             languages.sort().forEach(lang => {
                 const option = document.createElement('option');
                 option.value = lang;
@@ -1215,6 +1279,7 @@
                     case 'stars': return b.stars - a.stars;
                     case 'forks': return b.forks - a.forks;
                     case 'updated': return new Date(b.updated_at) - new Date(a.updated_at);
+                    case 'created': return new Date(b.created_at) - new Date(a.created_at);
                     case 'name': return a.name.localeCompare(b.name);
                     default: return 0;
                 }
@@ -1232,7 +1297,7 @@
             const grid = document.getElementById('repoGrid');
 
             if (paged.length === 0) {
-                grid.innerHTML = '<div class="loading"><p>No repositories found matching your criteria.</p></div>';
+                grid.innerHTML = '<div class="loading"><p>لم يتم العثور على مستودعات تطابق معاييرك.</p></div>';
                 return;
             }
 
@@ -1245,9 +1310,13 @@
                             <div class="repo-owner">${repo.owner}</div>
                         </div>
                     </div>
-                    <div class="repo-description">${repo.description || 'No description available'}</div>
+                    <div class="repo-description">${repo.description || 'لا يوجد وصف متاح'}</div>
                     <div class="repo-topics">
                         ${(repo.topics || []).slice(0, 4).map(t => `<span class="topic-tag">${t}</span>`).join('')}
+                    </div>
+                    <div class="repo-dates" style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        ${repo.created_at ? `<span>📅 أُنشئ: ${formatDate(repo.created_at)}</span>` : ''}
+                        ${repo.updated_at ? `<span style="margin-right: 1rem;">🔄 آخر تحديث: ${formatDate(repo.updated_at)}</span>` : ''}
                     </div>
                     <div class="repo-stats">
                         <span class="repo-stat stars">⭐ ${formatNumber(repo.stars)}</span>
@@ -1286,8 +1355,8 @@
                     <div class="contributor-info">
                         <a href="${c.profile_url}" target="_blank" class="contributor-name">${c.login}</a>
                         <div class="contributor-stats">
-                            <strong>${formatNumber(c.totalContributions)}</strong> contributions across 
-                            <strong>${c.reposContributed}</strong> repos
+                            <strong>${formatNumber(c.totalContributions)}</strong> مساهمة عبر 
+                            <strong>${c.reposContributed}</strong> مستودع
                         </div>
                     </div>
                 </div>
@@ -1310,7 +1379,7 @@
             }
 
             let buttons = [];
-            buttons.push(`<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="arguments[0].stopPropagation(); (${callback.toString()})(${current - 1})">← Prev</button>`);
+            buttons.push(`<button class="page-btn" ${current === 1 ? 'disabled' : ''} onclick="arguments[0].stopPropagation(); (${callback.toString()})(${current - 1})">السابق →</button>`);
 
             const range = 2;
             for (let i = 1; i <= totalPages; i++) {
@@ -1321,7 +1390,7 @@
                 }
             }
 
-            buttons.push(`<button class="page-btn" ${current === totalPages ? 'disabled' : ''} onclick="(${callback.toString()})(${current + 1})">Next →</button>`);
+            buttons.push(`<button class="page-btn" ${current === totalPages ? 'disabled' : ''} onclick="(${callback.toString()})(${current + 1})">← التالي</button>`);
 
             container.innerHTML = buttons.join('');
         }
@@ -1394,6 +1463,122 @@
                     <span class="language-name" style="width:140px">${topic}</span>
                     <div class="language-progress">
                         <div class="language-progress-fill" style="width: ${(count / maxTopicCount) * 100}%; background: var(--accent-green)"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Star Ranges Chart
+            const starRanges = {
+                '0 نجوم': 0,
+                '1-10 نجوم': 0,
+                '11-100 نجمة': 0,
+                '101-500 نجمة': 0,
+                '500+ نجمة': 0
+            };
+            repositories.forEach(r => {
+                const stars = r.stars || 0;
+                if (stars === 0) starRanges['0 نجوم']++;
+                else if (stars <= 10) starRanges['1-10 نجوم']++;
+                else if (stars <= 100) starRanges['11-100 نجمة']++;
+                else if (stars <= 500) starRanges['101-500 نجمة']++;
+                else starRanges['500+ نجمة']++;
+            });
+
+            const maxStarRange = Math.max(...Object.values(starRanges)) || 1;
+            const starColors = ['#8b949e', '#58a6ff', '#a371f7', '#f0883e', '#ffd700'];
+
+            document.getElementById('starRangesChart').innerHTML = Object.entries(starRanges).map(([range, count], i) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:100px">${range}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxStarRange) * 100}%; background: ${starColors[i]}"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Issue Activity Chart
+            const issueRanges = {
+                '0 Issues': 0,
+                '1-5 Issues': 0,
+                '6-20 Issue': 0,
+                '20+ Issue': 0
+            };
+            repositories.forEach(r => {
+                const issues = r.open_issues || 0;
+                if (issues === 0) issueRanges['0 Issues']++;
+                else if (issues <= 5) issueRanges['1-5 Issues']++;
+                else if (issues <= 20) issueRanges['6-20 Issue']++;
+                else issueRanges['20+ Issue']++;
+            });
+
+            const maxIssueRange = Math.max(...Object.values(issueRanges)) || 1;
+            const issueColors = ['#3fb950', '#58a6ff', '#f0883e', '#f85149'];
+
+            document.getElementById('issueActivityChart').innerHTML = Object.entries(issueRanges).map(([range, count], i) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:100px">${range}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxIssueRange) * 100}%; background: ${issueColors[i]}"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Activity Heatmap (Last Update)
+            const now = new Date();
+            const activityRanges = {
+                'هذا الأسبوع': 0,
+                'هذا الشهر': 0,
+                'هذه السنة': 0,
+                'أكثر من سنة': 0
+            };
+            repositories.forEach(r => {
+                if (!r.updated_at) {
+                    activityRanges['أكثر من سنة']++;
+                    return;
+                }
+                const updated = new Date(r.updated_at);
+                const daysDiff = (now - updated) / (1000 * 60 * 60 * 24);
+                if (daysDiff <= 7) activityRanges['هذا الأسبوع']++;
+                else if (daysDiff <= 30) activityRanges['هذا الشهر']++;
+                else if (daysDiff <= 365) activityRanges['هذه السنة']++;
+                else activityRanges['أكثر من سنة']++;
+            });
+
+            const maxActivity = Math.max(...Object.values(activityRanges)) || 1;
+            const activityColors = ['#3fb950', '#58a6ff', '#a371f7', '#8b949e'];
+
+            document.getElementById('activityHeatmapChart').innerHTML = Object.entries(activityRanges).map(([range, count], i) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:100px">${range}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxActivity) * 100}%; background: ${activityColors[i]}"></div>
+                    </div>
+                    <span class="language-count">${count}</span>
+                </div>
+            `).join('');
+
+            // Projects Timeline (Created Over Time)
+            const yearCounts = {};
+            repositories.forEach(r => {
+                if (r.created_at) {
+                    const year = new Date(r.created_at).getFullYear();
+                    yearCounts[year] = (yearCounts[year] || 0) + 1;
+                }
+            });
+
+            const sortedYears = Object.entries(yearCounts)
+                .sort((a, b) => parseInt(a[0]) - parseInt(b[0]));
+
+            const maxYearCount = Math.max(...Object.values(yearCounts)) || 1;
+
+            document.getElementById('projectsTimelineChart').innerHTML = sortedYears.map(([year, count]) => `
+                <div class="language-bar">
+                    <span class="language-name" style="width:60px">${year}</span>
+                    <div class="language-progress">
+                        <div class="language-progress-fill" style="width: ${(count / maxYearCount) * 100}%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple))"></div>
                     </div>
                     <span class="language-count">${count}</span>
                 </div>
