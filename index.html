@@ -324,6 +324,7 @@
             margin-bottom: 1rem;
             display: -webkit-box;
             -webkit-line-clamp: 2;
+            line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
             min-height: 2.8rem;
@@ -403,6 +404,21 @@
         .contributor-card:hover {
             border-color: var(--accent-purple);
             box-shadow: 0 0 30px rgba(163, 113, 247, 0.1);
+        }
+
+        .contributor-card.rank-border-gold {
+            border: 2px solid #ffd700;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.2);
+        }
+
+        .contributor-card.rank-border-silver {
+            border: 2px solid #c0c0c0;
+            box-shadow: 0 0 15px rgba(192, 192, 192, 0.2);
+        }
+
+        .contributor-card.rank-border-bronze {
+            border: 2px solid #cd7f32;
+            box-shadow: 0 0 15px rgba(205, 127, 50, 0.2);
         }
 
         .contributor-avatar {
@@ -795,6 +811,349 @@
                 flex-wrap: wrap;
             }
         }
+
+        /* Rank Badge */
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: var(--bg-tertiary);
+            border: 2px solid var(--border-color);
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .rank-badge.gold {
+            background: linear-gradient(135deg, #ffd700, #ffb300);
+            border-color: #ffa000;
+            color: #5d4500;
+        }
+
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #c0c0c0, #a0a0a0);
+            border-color: #808080;
+            color: #404040;
+        }
+
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #cd7f32, #b87333);
+            border-color: #8b5a2b;
+            color: #3d2000;
+        }
+
+        .contributor-card {
+            cursor: pointer;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .contributor-modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .contributor-modal {
+            transform: scale(1);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: var(--accent-pink);
+            border-color: var(--accent-pink);
+        }
+
+        .modal-profile {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid var(--accent-purple);
+            margin-bottom: 1rem;
+        }
+
+        .modal-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-rank {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .modal-rank .rank-badge {
+            width: 24px;
+            height: 24px;
+            font-size: 0.75rem;
+        }
+
+        .modal-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-stat {
+            background: var(--bg-tertiary);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .modal-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .modal-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .modal-section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-top-repos {
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-repo-item {
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-repo-name {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 500;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .modal-repo-name:hover {
+            text-decoration: underline;
+        }
+
+        .modal-repo-stars {
+            color: var(--accent-orange);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .download-card-btn {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .download-card-btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* Ranking Controls */
+        .ranking-controls {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .ranking-control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .ranking-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .ranking-mode-toggle {
+            display: flex;
+            gap: 0.25rem;
+            background: var(--bg-tertiary);
+            border-radius: 8px;
+            padding: 0.25rem;
+        }
+
+        .ranking-mode-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .ranking-mode-btn.active {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .factor-toggles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
+
+        .factor-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: var(--bg-tertiary);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .factor-toggle:hover {
+            background: var(--bg-primary);
+        }
+
+        .factor-toggle.active {
+            background: rgba(88, 166, 255, 0.2);
+            color: var(--accent-blue);
+        }
+
+        .factor-toggle input {
+            display: none;
+        }
+
+        .factor-toggle .check-icon {
+            opacity: 0;
+            width: 0;
+            transition: all 0.2s;
+        }
+
+        .factor-toggle.active .check-icon {
+            opacity: 1;
+            width: auto;
+        }
+
+        /* Canvas for export (hidden) */
+        #exportCanvas {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .ranking-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .modal-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -879,13 +1238,13 @@
         </div>
 
         <nav class="tabs">
-            <button class="tab active" data-tab="repositories">📦 المستودعات</button>
-            <button class="tab" data-tab="contributors">👥 أفضل المساهمين</button>
+            <button class="tab active" data-tab="contributors">👥 أفضل المساهمين</button>
+            <button class="tab" data-tab="repositories">📦 المستودعات</button>
             <button class="tab" data-tab="analytics">📊 التحليلات</button>
         </nav>
 
         <!-- Repositories Tab -->
-        <div id="repositories" class="tab-panel active">
+        <div id="repositories" class="tab-panel">
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="searchInput" placeholder="البحث في المستودعات...">
@@ -911,7 +1270,40 @@
         </div>
 
         <!-- Contributors Tab -->
-        <div id="contributors" class="tab-panel">
+        <div id="contributors" class="tab-panel active">
+            <!-- Ranking Controls -->
+            <div class="ranking-controls">
+                <div class="ranking-control-group">
+                    <span class="ranking-label">📊 نظام الترتيب:</span>
+                    <div class="ranking-mode-toggle">
+                        <button class="ranking-mode-btn active" data-mode="global" onclick="setRankingMode('global')">🌎
+                            الإجمالي</button>
+                        <button class="ranking-mode-btn" data-mode="filtered" onclick="setRankingMode('filtered')">🔍
+                            المصفى</button>
+                    </div>
+                </div>
+                <div class="ranking-control-group">
+                    <span class="ranking-label">العوامل:</span>
+                    <div class="factor-toggles">
+                        <label class="factor-toggle active" data-factor="stars">
+                            <input type="checkbox" checked onchange="toggleFactor('stars', this.checked)">
+                            <span class="check-icon">✓</span>
+                            ⭐ النجوم
+                        </label>
+                        <label class="factor-toggle active" data-factor="repos">
+                            <input type="checkbox" checked onchange="toggleFactor('repos', this.checked)">
+                            <span class="check-icon">✓</span>
+                            📦 المستودعات
+                        </label>
+                        <label class="factor-toggle" data-factor="contributions">
+                            <input type="checkbox" onchange="toggleFactor('contributions', this.checked)">
+                            <span class="check-icon">✓</span>
+                            💻 المساهمات
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="controls">
                 <div class="search-box">
                     <input type="text" id="contributorSearch" placeholder="البحث عن المساهمين...">
@@ -920,6 +1312,17 @@
             <div id="contributorsGrid" class="contributors-grid"></div>
             <div id="contributorPagination" class="pagination"></div>
         </div>
+
+        <!-- Contributor Modal -->
+        <div class="modal-overlay" id="contributorModal" onclick="closeContributorModal(event)">
+            <div class="contributor-modal" onclick="event.stopPropagation()">
+                <button class="modal-close" onclick="closeContributorModal()">×</button>
+                <div id="modalContent"></div>
+            </div>
+        </div>
+
+        <!-- Hidden Canvas for Export -->
+        <canvas id="exportCanvas"></canvas>
 
         <!-- Analytics Tab -->
         <div id="analytics" class="tab-panel">
@@ -967,6 +1370,7 @@
         let allRepositories = [];  // Original unfiltered data
         let repositories = [];     // After post-filter is applied
         let allContributorsData = {}; // Original contributors data
+        let allGlobalStats = {};      // Loaded from contributors_global_stats.json
         let contributors = [];
         let currentPage = 1;
         let contributorPage = 1;
@@ -988,6 +1392,23 @@
         ];
         let exclusionPatterns = [...DEFAULT_EXCLUSION_PATTERNS];
         let filterMode = 'exclude'; // 'exclude' or 'include'
+
+        // Ranking state
+        let rankingMode = 'global'; // 'global' or 'filtered'
+        let rankingFactors = {
+            stars: true,
+            repos: true,
+            contributions: false
+        };
+
+        // Quran-related keywords for filtering
+        const QURAN_KEYWORDS = [
+            'quran', 'qur\'an', 'القرآن', 'قرآن', 'mushaf', 'moshaf', 'مصحف',
+            'tajweed', 'tajwid', 'تجويد', 'tilawa', 'tilawah', 'تلاوة',
+            'hifz', 'hifaz', 'حفظ', 'tafsir', 'tafseer', 'تفسير',
+            'surah', 'سورة', 'ayah', 'ayat', 'آية', 'qari', 'قارئ',
+            'tarteel', 'ترتيل', 'qiraat', 'قراءات', 'islami', 'islamic'
+        ];
 
         // Language colors
         const languageColors = {
@@ -1096,26 +1517,70 @@
                 repositories = allRepositories.filter(repo => repoMatchesPatterns(repo));
             }
 
+            // Build repo lookup map
+            const repoLookup = {};
+            repositories.forEach(r => {
+                repoLookup[r.full_name] = r;
+            });
+
             // Recalculate contributors based on filtered repos
             const filteredRepoNames = new Set(repositories.map(r => r.full_name));
             const contributorMap = {};
-            Object.entries(allContributorsData).forEach(([repo, contribs]) => {
-                if (filteredRepoNames.has(repo)) {
-                    contribs.forEach(c => {
-                        if (!contributorMap[c.login]) {
-                            contributorMap[c.login] = {
-                                ...c,
-                                totalContributions: 0,
-                                reposContributed: 0
-                            };
-                        }
-                        contributorMap[c.login].totalContributions += c.contributions;
-                        contributorMap[c.login].reposContributed++;
+
+            Object.entries(allContributorsData).forEach(([repoName, contribs]) => {
+                if (!filteredRepoNames.has(repoName)) return;
+                const repo = repoLookup[repoName];
+                if (!repo) return;
+
+                // Check if repo is Quran-related (for quran-only mode)
+                const isQuranRepo = isQuranRelated(repo);
+
+                contribs.forEach(c => {
+                    // Skip bot accounts
+                    if (c.login && c.login.toLowerCase().includes('[bot]')) return;
+
+                    if (!contributorMap[c.login]) {
+                        const globalStats = allGlobalStats[c.login] || { global_stars: 0 };
+                        contributorMap[c.login] = {
+                            ...c,
+                            totalContributions: 0,
+                            reposContributed: 0,
+                            totalStars: 0, // In this context, this is total stars in our JSON
+                            globalStars: globalStats.global_stars || 0,
+                            filteredStars: 0,
+                            filteredRepos: 0,
+                            topRepos: []
+                        };
+                    }
+                    contributorMap[c.login].totalContributions += c.contributions;
+                    contributorMap[c.login].reposContributed++;
+                    contributorMap[c.login].totalStars += repo.stars || 0;
+                    contributorMap[c.login].filteredStars += repo.stars || 0;
+                    contributorMap[c.login].filteredRepos++;
+                    contributorMap[c.login].topRepos.push({
+                        name: repo.name,
+                        full_name: repo.full_name,
+                        url: repo.url,
+                        stars: repo.stars || 0,
+                        isQuran: isQuranRepo
                     });
-                }
+                });
             });
-            contributors = Object.values(contributorMap)
-                .sort((a, b) => b.totalContributions - a.totalContributions);
+
+            // Sort top repos and keep only top 3 for each contributor
+            Object.values(contributorMap).forEach(c => {
+                c.topRepos.sort((a, b) => b.stars - a.stars);
+                c.topRepos = c.topRepos.slice(0, 5);
+            });
+
+            // Sort contributors based on ranking mode and factors
+            contributors = Object.values(contributorMap);
+            sortContributorsByRanking();
+
+            // Assign ranks after sorting
+            contributors.forEach((c, index) => {
+                c.rank = index + 1;
+            });
 
             // Update filter stats
             const excluded = allRepositories.length - repositories.length;
@@ -1130,6 +1595,68 @@
             renderRepositories();
             renderContributors();
             renderAnalytics();
+        }
+
+        // Check if a repo is Quran-related
+        function isQuranRelated(repo) {
+            const searchText = [
+                repo.name,
+                repo.description || '',
+                ...(repo.topics || [])
+            ].join(' ').toLowerCase();
+            return QURAN_KEYWORDS.some(kw => searchText.includes(kw.toLowerCase()));
+        }
+
+        // Sort contributors based on current ranking settings
+        function sortContributorsByRanking() {
+            contributors.sort((a, b) => {
+                const scoreA = calculateRankingScore(a);
+                const scoreB = calculateRankingScore(b);
+                return scoreB - scoreA;
+            });
+        }
+
+        // Calculate ranking score based on active factors
+        function calculateRankingScore(contributor) {
+            let score = 0;
+            const isGlobal = rankingMode === 'global';
+
+            if (rankingFactors.stars) {
+                score += isGlobal ? contributor.globalStars : contributor.filteredStars;
+            }
+            if (rankingFactors.repos) {
+                // Weight repos
+                score += (isGlobal ? contributor.reposContributed : contributor.filteredRepos) * 10;
+            }
+            if (rankingFactors.contributions) {
+                score += contributor.totalContributions;
+            }
+            return score;
+        }
+
+        // Set ranking mode
+        function setRankingMode(mode) {
+            rankingMode = mode;
+            document.querySelectorAll('.ranking-mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
+            // Re-sort and re-render contributors
+            sortContributorsByRanking();
+            contributors.forEach((c, index) => c.rank = index + 1);
+            contributorPage = 1;
+            renderContributors();
+        }
+
+        // Toggle ranking factor
+        function toggleFactor(factor, enabled) {
+            rankingFactors[factor] = enabled;
+            document.querySelector(`.factor-toggle[data-factor="${factor}"]`)
+                .classList.toggle('active', enabled);
+            // Re-sort and re-render contributors
+            sortContributorsByRanking();
+            contributors.forEach((c, index) => c.rank = index + 1);
+            contributorPage = 1;
+            renderContributors();
         }
 
         // Save filters to localStorage
@@ -1194,13 +1721,15 @@
         // Load data
         async function loadData() {
             try {
-                const [repoResponse, contribResponse] = await Promise.all([
+                const [repoResponse, contribResponse, globalResponse] = await Promise.allSettled([
                     fetch('repositories.json'),
-                    fetch('contributors.json')
+                    fetch('contributors.json'),
+                    fetch('contributors_global_stats.json')
                 ]);
 
-                allRepositories = await repoResponse.json();
-                allContributorsData = await contribResponse.json();
+                if (repoResponse.status === 'fulfilled') allRepositories = await repoResponse.value.json();
+                if (contribResponse.status === 'fulfilled') allContributorsData = await contribResponse.value.json();
+                if (globalResponse.status === 'fulfilled') allGlobalStats = await globalResponse.value.json();
 
                 // Load saved filters first
                 loadFiltersFromStorage();
@@ -1242,7 +1771,7 @@
         function formatDate(dateStr) {
             if (!dateStr) return '';
             const date = new Date(dateStr);
-            return date.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric' });
+            return date.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'short', day: 'numeric' });
         }
 
         // Populate filters (use allRepositories for full language list)
@@ -1349,23 +1878,282 @@
             const paged = filtered.slice(start, start + 24);
 
             const grid = document.getElementById('contributorsGrid');
-            grid.innerHTML = paged.map(c => `
-                <div class="contributor-card">
+            grid.innerHTML = paged.map(c => {
+                const rankClass = getRankClass(c.rank);
+                const isGlobal = rankingMode === 'global';
+                const displayStars = isGlobal ? c.globalStars : c.filteredStars;
+                const displayRepos = isGlobal ? c.reposContributed : c.filteredRepos;
+
+                return `
+                <div class="contributor-card rank-border-${rankClass}" onclick="openContributorModal('${c.login}')">
+                    <span class="rank-badge ${rankClass}">${c.rank}</span>
                     <img src="${c.avatar_url}" alt="${c.login}" class="contributor-avatar" loading="lazy">
                     <div class="contributor-info">
-                        <a href="${c.profile_url}" target="_blank" class="contributor-name">${c.login}</a>
+                        <span class="contributor-name">${c.login}</span>
                         <div class="contributor-stats">
-                            <strong>${formatNumber(c.totalContributions)}</strong> مساهمة عبر 
-                            <strong>${c.reposContributed}</strong> مستودع
+                            ⭐ <strong>${formatNumber(displayStars)}</strong> نجمة • 
+                            <strong>${displayRepos}</strong> مستودع
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
 
             renderPagination(filtered.length, contributorPage, 'contributorPagination', (page) => {
                 contributorPage = page;
                 renderContributors();
             }, 24);
+        }
+
+        // Get rank class for styling
+        function getRankClass(rank) {
+            if (rank === 1) return 'gold';
+            if (rank === 2) return 'silver';
+            if (rank === 3) return 'bronze';
+            return '';
+        }
+
+        // Open contributor modal
+        function openContributorModal(login) {
+            const contributor = contributors.find(c => c.login === login);
+            if (!contributor) return;
+
+            const rankClass = getRankClass(contributor.rank);
+            const isGlobal = rankingMode === 'global';
+            const displayStars = isGlobal ? contributor.globalStars : contributor.filteredStars;
+            const displayRepos = isGlobal ? contributor.reposContributed : contributor.filteredRepos;
+
+            // Get top 3 repos (filtered by the current list)
+            const topRepos = contributor.topRepos.slice(0, 3);
+
+            const modalHTML = `
+                <div class="modal-profile">
+                    <img src="${contributor.avatar_url}" alt="${contributor.login}" class="modal-avatar">
+                    <div class="modal-name">${contributor.login}</div>
+                    <div class="modal-rank">
+                        <span class="rank-badge ${rankClass}">${contributor.rank}</span>
+                        المرتبة #${contributor.rank}
+                    </div>
+                </div>
+                <div class="modal-stats-grid">
+                    <div class="modal-stat">
+                        <div class="modal-stat-value">${formatNumber(displayStars)}</div>
+                        <div class="modal-stat-label">⭐ نجوم GitHub</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-value">${displayRepos}</div>
+                        <div class="modal-stat-label">📦 المستودعات</div>
+                    </div>
+                    <div class="modal-stat">
+                        <div class="modal-stat-value">${formatNumber(contributor.totalContributions)}</div>
+                        <div class="modal-stat-label">💻 المساهمات</div>
+                    </div>
+                </div>
+
+                ${topRepos.length > 0 ? `
+                <div class="modal-top-repos">
+                    <div class="modal-section-title">🏆 أفضل المستودعات</div>
+                    ${topRepos.map(repo => `
+                        <div class="modal-repo-item">
+                            <a href="${repo.url}" target="_blank" class="modal-repo-name" onclick="event.stopPropagation()">${repo.name}</a>
+                            <span class="modal-repo-stars">⭐ ${formatNumber(repo.stars)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+                ` : ''}
+
+                <button class="download-card-btn" onclick="downloadContributorCard('${contributor.login}')">
+                    📥 تحميل كصورة
+                </button>
+            `;
+
+            document.getElementById('modalContent').innerHTML = modalHTML;
+            document.getElementById('contributorModal').classList.add('active');
+        }
+
+        // Close contributor modal
+        function closeContributorModal(event) {
+            if (event && event.target !== event.currentTarget) return;
+            document.getElementById('contributorModal').classList.remove('active');
+        }
+
+        // Download contributor card as image
+        async function downloadContributorCard(login) {
+            const contributor = contributors.find(c => c.login === login);
+            if (!contributor) return;
+
+            const canvas = document.getElementById('exportCanvas');
+            const ctx = canvas.getContext('2d');
+            const rankClass = getRankClass(contributor.rank);
+            const isGlobal = rankingMode === 'global';
+            const displayStars = isGlobal ? contributor.globalStars : contributor.filteredStars;
+            const displayRepos = isGlobal ? contributor.reposContributed : contributor.filteredRepos;
+
+            // Get top repos
+            const topRepos = contributor.topRepos.slice(0, 3);
+
+            // Canvas dimensions - taller to fit repos, 4x scale for high quality
+            const scale = 4;
+            const width = 500;
+            const height = topRepos.length > 0 ? 520 : 400;
+            canvas.width = width * scale;
+            canvas.height = height * scale;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            ctx.scale(scale, scale);
+
+            // Background
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#161b22');
+            gradient.addColorStop(1, '#0d1117');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+
+            // Border
+            ctx.strokeStyle = '#30363d';
+            ctx.lineWidth = 2;
+            ctx.roundRect(10, 10, width - 20, height - 20, 16);
+            ctx.stroke();
+
+            // Rank badge background
+            const rankColors = {
+                gold: { bg: '#ffd700', text: '#5d4500' },
+                silver: { bg: '#c0c0c0', text: '#404040' },
+                bronze: { bg: '#cd7f32', text: '#3d2000' },
+                default: { bg: '#21262d', text: '#8b949e' }
+            };
+            const colors = rankColors[rankClass] || rankColors.default;
+
+            ctx.fillStyle = colors.bg;
+            ctx.beginPath();
+            ctx.arc(80, 80, 28, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = colors.text;
+            ctx.font = 'bold 18px "IBM Plex Sans Arabic"';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(contributor.rank.toString(), 80, 80);
+
+            // Load avatar and draw
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                // Avatar circle
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(width / 2, 100, 45, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(img, width / 2 - 45, 55, 90, 90);
+                ctx.restore();
+
+                // Avatar border
+                ctx.strokeStyle = '#a371f7';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(width / 2, 100, 45, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Username
+                ctx.fillStyle = '#e6edf3';
+                ctx.font = 'bold 22px "IBM Plex Sans Arabic"';
+                ctx.textAlign = 'center';
+                ctx.fillText(contributor.login, width / 2, 170);
+
+                // Rank text
+                ctx.fillStyle = '#8b949e';
+                ctx.font = '14px "IBM Plex Sans Arabic"';
+                ctx.fillText(`المرتبة #${contributor.rank}`, width / 2, 192);
+
+                // Stats
+                const statsY = 235;
+                const statsSpacing = 140;
+                const statsX = [width / 2 - statsSpacing, width / 2, width / 2 + statsSpacing];
+
+                // Stars
+                ctx.fillStyle = '#4facfe';
+                ctx.font = 'bold 24px "IBM Plex Sans Arabic"';
+                ctx.fillText(formatNumber(displayStars), statsX[0], statsY);
+                ctx.fillStyle = '#8b949e';
+                ctx.font = '12px "IBM Plex Sans Arabic"';
+                ctx.fillText('⭐ نجوم GitHub', statsX[0], statsY + 22);
+
+                // Repos
+                ctx.fillStyle = '#4facfe';
+                ctx.font = 'bold 24px "IBM Plex Sans Arabic"';
+                ctx.fillText(displayRepos.toString(), statsX[1], statsY);
+                ctx.fillStyle = '#8b949e';
+                ctx.font = '12px "IBM Plex Sans Arabic"';
+                ctx.fillText('📦 المستودعات', statsX[1], statsY + 22);
+
+                // Contributions
+                ctx.fillStyle = '#4facfe';
+                ctx.font = 'bold 24px "IBM Plex Sans Arabic"';
+                ctx.fillText(formatNumber(contributor.totalContributions), statsX[2], statsY);
+                ctx.fillStyle = '#8b949e';
+                ctx.font = '12px "IBM Plex Sans Arabic"';
+                ctx.fillText('💻 المساهمات', statsX[2], statsY + 22);
+
+                // Top Repos Section
+                if (topRepos.length > 0) {
+                    const reposStartY = 300;
+
+                    // Section title
+                    ctx.fillStyle = '#e6edf3';
+                    ctx.font = 'bold 14px "IBM Plex Sans Arabic"';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('🏆 أفضل المستودعات', width / 2, reposStartY);
+
+                    // Draw repos
+                    topRepos.forEach((repo, index) => {
+                        const repoY = reposStartY + 30 + (index * 35);
+
+                        // Repo background
+                        ctx.fillStyle = '#21262d';
+                        ctx.beginPath();
+                        ctx.roundRect(40, repoY - 12, width - 80, 30, 6);
+                        ctx.fill();
+
+                        // Repo name (left aligned)
+                        ctx.fillStyle = '#58a6ff';
+                        ctx.font = '13px "IBM Plex Sans Arabic"';
+                        ctx.textAlign = 'right';
+                        ctx.fillText(repo.name.substring(0, 30), width - 60, repoY + 5);
+
+                        // Stars (right aligned)
+                        ctx.fillStyle = '#d29922';
+                        ctx.textAlign = 'left';
+                        ctx.fillText(`⭐ ${formatNumber(repo.stars)}`, 55, repoY + 5);
+                    });
+                }
+
+                // Footer
+                ctx.fillStyle = '#58a6ff';
+                ctx.font = '11px "IBM Plex Sans Arabic"';
+                ctx.textAlign = 'center';
+                ctx.fillText('مستكشف مشاريع القرآن | GitHub', width / 2, height - 25);
+
+                // Download
+                const link = document.createElement('a');
+                link.download = `${contributor.login}_rank_${contributor.rank}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+
+            img.onerror = () => {
+                // If avatar fails to load, draw without it
+                ctx.fillStyle = '#e6edf3';
+                ctx.font = 'bold 24px "IBM Plex Sans Arabic"';
+                ctx.textAlign = 'center';
+                ctx.fillText(contributor.login, width / 2, 150);
+
+                const link = document.createElement('a');
+                link.download = `${contributor.login}_rank_${contributor.rank}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+
+            img.src = contributor.avatar_url;
         }
 
         // Render pagination
