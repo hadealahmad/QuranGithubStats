@@ -143,6 +143,28 @@ EXCLUDE_TERMS = [
     "backup",
     "mirror",
     "deprecated",
+    "appz",
+    "research papers",
+    "daftar",
+    "teaching",
+    "send messages",
+    "raycast extensions",
+    "paper list",
+    "playlists",
+    "the todo list",
+    "obsidian plugins",
+    "public-apis",
+    "awsome",
+    "mcp-",
+    "apis_public",
+    "top-",
+    "Sacred-Texts",
+    "prompts",
+    "999-eBooks",
+    "tenet",
+    "TrollStore",
+    "religious",
+    "Userscripts",
 ]
 
 # Exclude repositories containing these terms in their FULL NAME (owner/repo)
@@ -170,13 +192,13 @@ README_DOWNLOAD_WORKERS = 10
 README_BATCH_DELAY = 1.0
 
 # Output directories and files
-OUTPUT_DIR = Path("output")
+OUTPUT_DIR = Path(".")
 README_DIR = OUTPUT_DIR / "readmes"
 RESULTS_FILE = OUTPUT_DIR / "repositories.json"
 RESULTS_CSV = OUTPUT_DIR / "repositories.csv"
 CONTRIBUTORS_FILE = OUTPUT_DIR / "contributors.json"
-CHECKPOINT_FILE = OUTPUT_DIR / "checkpoint.json"
-SEARCH_CACHE_FILE = OUTPUT_DIR / "search_cache.json"
+CHECKPOINT_FILE = Path("output/checkpoint.json")
+SEARCH_CACHE_FILE = Path("output/search_cache.json")
 
 
 def get_headers() -> dict:
@@ -735,7 +757,7 @@ def save_checkpoint(processed: list, all_contributors: dict, start_idx: int):
 
 
 def load_checkpoint() -> tuple[list, dict, int]:
-    """Load checkpoint if it exists."""
+    """Load checkpoint or existing results if they exist."""
     if CHECKPOINT_FILE.exists():
         try:
             with open(CHECKPOINT_FILE, "r", encoding="utf-8") as f:
@@ -744,6 +766,24 @@ def load_checkpoint() -> tuple[list, dict, int]:
             return checkpoint["processed"], checkpoint["contributors"], checkpoint["last_index"]
         except Exception as e:
             print(f"⚠️ Could not load checkpoint: {e}")
+            
+    # If no checkpoint, try loading from existing results file to use as cache
+    if RESULTS_FILE.exists():
+        try:
+            with open(RESULTS_FILE, "r", encoding="utf-8") as f:
+                existing_repos = json.load(f)
+            
+            # Load contributors as well
+            existing_contributors = {}
+            if CONTRIBUTORS_FILE.exists():
+                with open(CONTRIBUTORS_FILE, "r", encoding="utf-8") as f:
+                    existing_contributors = json.load(f)
+            
+            print(f"📂 Loaded {len(existing_repos)} existing repos from results (caching metadata)")
+            return existing_repos, existing_contributors, 0
+        except Exception as e:
+            print(f"⚠️ Could not load existing results for cache: {e}")
+            
     return [], {}, 0
 
 
@@ -760,10 +800,19 @@ def process_repositories(all_repos: list[dict], resume: bool = True, use_batch_r
     Returns:
         Tuple of (processed_repos, all_contributors)
     """
-    # Try to resume from checkpoint
+    # Try to resume from checkpoint or load existing results as cache
     if resume:
-        processed, all_contributors, start_idx = load_checkpoint()
+        cached_processed, all_contributors, start_idx = load_checkpoint()
+        
+        # Filter cached results to only include those in the current search list
+        # This ensures that repositories we no longer want (e.g. newly excluded) are removed
+        search_ids = {r["id"] for r in all_repos}
+        processed = [r for r in cached_processed if r["id"] in search_ids]
+        
         seen_repos = {r["id"] for r in processed}
+        
+        if len(processed) < len(cached_processed):
+            print(f"🧹 Cleaned up {len(cached_processed) - len(processed)} repositories from cache that are no longer in search results")
     else:
         processed = []
         all_contributors = {}
